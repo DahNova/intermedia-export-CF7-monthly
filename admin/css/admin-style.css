@@ -1,0 +1,230 @@
+/**
+ * CF7 Monthly Export - Admin Styles
+ */
+
+.cf7-export-settings {
+    max-width: 1200px;
+}
+
+.cf7-export-container {
+    margin-top: 20px;
+}
+
+/* Statistics Card */
+.cf7-export-stats-card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.cf7-export-stats-card h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border-left: 4px solid #2271b1;
+}
+
+.stat-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #646970;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.stat-value.highlight {
+    color: #d63638;
+}
+
+/* Action Buttons */
+.action-buttons {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-buttons .button {
+    min-height: 36px;
+}
+
+/* Export Result */
+.export-result {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 4px;
+    border-left: 4px solid #72aee6;
+}
+
+.export-result.success {
+    background: #d7f1dd;
+    border-left-color: #00a32a;
+    color: #1e4620;
+}
+
+.export-result.error {
+    background: #fcf0f1;
+    border-left-color: #d63638;
+    color: #3c1f1f;
+}
+
+.export-result.info {
+    background: #f0f6fc;
+    border-left-color: #72aee6;
+    color: #1e3a5f;
+}
+
+/* Settings Sections */
+.cf7-export-section {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.cf7-export-section h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.cf7-export-section .description {
+    margin-bottom: 15px;
+}
+
+.cf7-export-form .form-table {
+    margin-top: 20px;
+}
+
+.cf7-export-form .form-table th {
+    padding-left: 0;
+    font-weight: 600;
+}
+
+.cf7-export-form .form-table td {
+    padding-right: 0;
+}
+
+.cf7-export-form .form-table input[type="text"],
+.cf7-export-form .form-table input[type="email"],
+.cf7-export-form .form-table textarea {
+    width: 100%;
+    max-width: 600px;
+}
+
+.cf7-export-form .form-table textarea.code {
+    font-family: Consolas, Monaco, monospace;
+    font-size: 12px;
+}
+
+.cf7-export-form .form-table label {
+    display: inline-block;
+    margin: 5px 0;
+}
+
+/* Instructions */
+.cf7-instructions {
+    line-height: 1.8;
+}
+
+.cf7-instructions li {
+    margin-bottom: 15px;
+}
+
+.cf7-instructions ul {
+    margin-top: 8px;
+    margin-left: 20px;
+}
+
+.cf7-instructions ul li {
+    margin-bottom: 5px;
+    list-style-type: disc;
+}
+
+.cf7-instructions a {
+    color: #2271b1;
+    text-decoration: none;
+}
+
+.cf7-instructions a:hover {
+    text-decoration: underline;
+}
+
+/* Loading State */
+.button.is-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.button.is-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -10px;
+    margin-top: -10px;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: button-spin 0.6s linear infinite;
+}
+
+.button-secondary.is-loading::after {
+    border-color: #2271b1;
+    border-top-color: transparent;
+}
+
+@keyframes button-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons .button {
+        width: 100%;
+    }
+}

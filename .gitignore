@@ -1,0 +1,34 @@
+# Dependencies
+/vendor/
+composer.lock
+
+# WordPress
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Credentials (NEVER commit these)
+google-credentials.json
+service-account.json
+*.pem
+
+# Temporary files
+*.tmp
+*.bak
+*.cache
+
+# Node modules (if using any build tools)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Build files
+/dist/
+/build/

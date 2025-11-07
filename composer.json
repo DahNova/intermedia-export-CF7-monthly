@@ -1,0 +1,25 @@
+{
+    "name": "dahnova/cf7-monthly-export",
+    "description": "Export Contact Form 7 submissions to Google Sheets",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "DahNova",
+            "homepage": "https://github.com/DahNova"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "google/apiclient": "^2.15"
+    },
+    "autoload": {
+        "psr-4": {
+            "CF7MonthlyExport\\": "includes/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}

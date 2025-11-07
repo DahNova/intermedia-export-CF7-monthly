@@ -18,8 +18,8 @@ Plugin WordPress per esportare automaticamente o manualmente i dati delle submis
 - WordPress 5.8 o superiore
 - PHP 7.4 o superiore
 - Contact Form 7 plugin
-- Contact Form CFDB7 plugin (per salvare le submission nel database)
-- Composer (per installare le dipendenze Google API)
+- **Flamingo** O **Contact Form CFDB7** (per salvare le submission nel database)
+- Composer (per installare le dipendenze Google API - solo per sviluppatori)
 - Account Google Cloud con Google Sheets API abilitata
 
 ## Installazione
@@ -282,6 +282,16 @@ cf7-monthly-export/
 ```
 
 ## Changelog
+
+### Version 1.1.0 (2025-11-07) - Flamingo Support (Beta)
+- ✨ Nuova funzionalità: Supporto per **Flamingo** come storage backend **(BETA)**
+- ✨ Nuova funzionalità: Selezione storage backend (Auto-detect / Flamingo / CFDB7)
+- ⚡ Migliorato: Auto-detect automatico con conferma visiva
+- ⚡ Migliorato: Architettura flessibile per supportare multiple fonti dati
+- 📝 Aggiornato: Requisiti - ora richiede Flamingo **O** CFDB7 (non più solo CFDB7)
+- 🔧 Fix: Match corretto tramite taxonomy `flamingo_inbound_channel`
+- 🔧 Fix: Lettura campi da meta `_field_*` invece di `_fields`
+- 🔧 Fix: Filtro corretto per `post_status` e `_submission_status`
 
 ### Version 1.0.4 (2025-11-07)
 - 🔧 Fix: Supporto esteso fino a 702 colonne (A:ZZ)

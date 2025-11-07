@@ -56,6 +56,29 @@ class CF7_Monthly_Export_Exporter {
     }
 
     /**
+     * Detect which storage backend is available
+     *
+     * @return string 'flamingo', 'cfdb7', or 'none'
+     */
+    public function detect_storage_backend() {
+        // Check for Flamingo
+        if (class_exists('Flamingo_Inbound_Message')) {
+            return 'flamingo';
+        }
+
+        // Check for CFDB7
+        if (class_exists('CFDB7_DB_Query')) {
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'db7_forms';
+            if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") == $table_name) {
+                return 'cfdb7';
+            }
+        }
+
+        return 'none';
+    }
+
+    /**
      * Get submissions from CFDB7 for specific forms
      *
      * @param array $form_ids Array of form IDs to export
@@ -63,6 +86,31 @@ class CF7_Monthly_Export_Exporter {
      * @return array Array of submissions
      */
     public function get_submissions($form_ids = null, $since_date = null) {
+        // Determine backend to use
+        $backend = isset($this->settings['storage_backend']) ? $this->settings['storage_backend'] : 'auto';
+
+        if ($backend === 'auto') {
+            $backend = $this->detect_storage_backend();
+        }
+
+        // Route to appropriate method
+        if ($backend === 'flamingo') {
+            return $this->get_submissions_from_flamingo($form_ids, $since_date);
+        } elseif ($backend === 'cfdb7') {
+            return $this->get_submissions_from_cfdb7($form_ids, $since_date);
+        }
+
+        return array();
+    }
+
+    /**
+     * Get submissions from CFDB7 for specific forms
+     *
+     * @param array $form_ids Array of form IDs to export
+     * @param string $since_date Get submissions since this date (Y-m-d format)
+     * @return array Array of submissions
+     */
+    private function get_submissions_from_cfdb7($form_ids = null, $since_date = null) {
         global $wpdb;
 
         if ($form_ids === null) {
@@ -97,6 +145,111 @@ class CF7_Monthly_Export_Exporter {
         $results = $wpdb->get_results($wpdb->prepare($query, $params), ARRAY_A);
 
         return $results ? $results : array();
+    }
+
+    /**
+     * Get submissions from Flamingo for specific forms
+     *
+     * @param array $form_ids Array of form IDs to export
+     * @param string $since_date Get submissions since this date (Y-m-d format)
+     * @return array Array of submissions
+     */
+    private function get_submissions_from_flamingo($form_ids = null, $since_date = null) {
+        if ($form_ids === null) {
+            $form_ids = isset($this->settings['forms_to_export']) ? $this->settings['forms_to_export'] : array();
+        }
+
+        if (empty($form_ids)) {
+            return array();
+        }
+
+        $args = array(
+            'post_type' => 'flamingo_inbound',
+            'posts_per_page' => -1,
+            'post_status' => 'publish',  // Only inbox items (not spam or trash)
+            'orderby' => 'date',
+            'order' => 'DESC',
+            'meta_query' => array(
+                array(
+                    'key' => '_submission_status',
+                    'value' => 'mail_sent',
+                    'compare' => '='
+                )
+            )
+        );
+
+        // Add date filter if provided
+        if ($since_date) {
+            $args['date_query'] = array(
+                array(
+                    'after' => $since_date,
+                    'inclusive' => true
+                )
+            );
+        }
+
+        $query = new WP_Query($args);
+        $submissions = array();
+
+        // Build a map of form titles to IDs for matching
+        $form_title_map = array();
+        foreach ($form_ids as $fid) {
+            $form_post = get_post($fid);
+            if ($form_post) {
+                $form_title_map[$form_post->post_title] = $fid;
+            }
+        }
+
+        if ($query->have_posts()) {
+            foreach ($query->posts as $post) {
+                // Get form from Flamingo taxonomy flamingo_inbound_channel
+                $terms = wp_get_object_terms($post->ID, 'flamingo_inbound_channel');
+
+                if (is_wp_error($terms) || empty($terms)) {
+                    continue;
+                }
+
+                // Match form by title from taxonomy
+                $form_title = $terms[0]->name;
+                $form_id = isset($form_title_map[$form_title]) ? $form_title_map[$form_title] : null;
+
+                // Skip if this form is not in our selected forms
+                if (!$form_id) {
+                    continue;
+                }
+
+                // Get all postmeta for this submission
+                $all_meta = get_post_meta($post->ID);
+                $fields = array();
+
+                // Extract fields from _field_* meta keys
+                foreach ($all_meta as $meta_key => $meta_value) {
+                    if (strpos($meta_key, '_field_') === 0) {
+                        // Remove _field_ prefix to get field name
+                        $field_name = substr($meta_key, 7);
+                        // Get the actual value (meta_value is an array)
+                        $fields[$field_name] = isset($meta_value[0]) ? maybe_unserialize($meta_value[0]) : '';
+                    }
+                }
+
+                // Skip if no fields found
+                if (empty($fields)) {
+                    continue;
+                }
+
+                // Convert to CFDB7-like structure for compatibility
+                $submissions[] = array(
+                    'form_id' => $post->ID,
+                    'form_post_id' => $form_id,
+                    'form_value' => serialize($fields),
+                    'form_date' => $post->post_date
+                );
+            }
+        }
+
+        wp_reset_postdata();
+
+        return $submissions;
     }
 
     /**

@@ -99,6 +99,13 @@ class CF7_Monthly_Export_Admin_Page {
             $sanitized['schedule_frequency'] = 'monthly';
         }
 
+        // Storage backend
+        if (isset($input['storage_backend']) && in_array($input['storage_backend'], array('auto', 'flamingo', 'cfdb7'))) {
+            $sanitized['storage_backend'] = $input['storage_backend'];
+        } else {
+            $sanitized['storage_backend'] = 'auto';
+        }
+
         // Send notifications
         $sanitized['send_notifications'] = isset($input['send_notifications']) ? true : false;
 

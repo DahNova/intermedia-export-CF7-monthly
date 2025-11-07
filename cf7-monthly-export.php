@@ -3,7 +3,7 @@
  * Plugin Name: CF7 Monthly Export to Google Sheets
  * Plugin URI: https://github.com/DahNova/intermedia-export-CF7-monthly
  * Description: Export Contact Form 7 submissions to Google Sheets monthly or on-demand
- * Version: 1.0.4
+ * Version: 1.1.0
  * Author: Claudio Novaglio
  * Author URI: https://github.com/DahNova
  * License: GPL v2 or later
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('CF7_MONTHLY_EXPORT_VERSION', '1.0.4');
+define('CF7_MONTHLY_EXPORT_VERSION', '1.1.0');
 define('CF7_MONTHLY_EXPORT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CF7_MONTHLY_EXPORT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('CF7_MONTHLY_EXPORT_PLUGIN_FILE', __FILE__);
@@ -154,9 +154,21 @@ class CF7_Monthly_Export {
             $missing_plugins[] = 'Contact Form 7';
         }
 
-        // Check for CFDB7 (Contact Form 7 Database Addon)
-        if (!class_exists('CFDB7_DB_Query')) {
-            $missing_plugins[] = 'Contact Form CFDB7';
+        // Check for at least one storage backend (Flamingo OR CFDB7)
+        $has_flamingo = class_exists('Flamingo_Inbound_Message');
+        $has_cfdb7 = class_exists('CFDB7_DB_Query');
+
+        if (!$has_flamingo && !$has_cfdb7) {
+            add_action('admin_notices', function() {
+                ?>
+                <div class="notice notice-error">
+                    <p>
+                        <?php _e('CF7 Monthly Export: You need at least one storage plugin installed:', 'cf7-monthly-export'); ?>
+                        <br><strong>Flamingo</strong> <?php _e('OR', 'cf7-monthly-export'); ?> <strong>Contact Form CFDB7</strong>
+                    </p>
+                </div>
+                <?php
+            });
         }
 
         // Check for Google API client library

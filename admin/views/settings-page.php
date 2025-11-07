@@ -176,6 +176,69 @@ if (!defined('ABSPATH')) {
                 </table>
             </div>
 
+            <!-- Storage Backend -->
+            <div class="cf7-export-section">
+                <h2><?php _e('Storage Backend', 'cf7-monthly-export'); ?></h2>
+                <p class="description">
+                    <?php _e('Choose which plugin is used to store Contact Form 7 submissions.', 'cf7-monthly-export'); ?>
+                </p>
+
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><?php _e('Submission Storage', 'cf7-monthly-export'); ?></th>
+                        <td>
+                            <?php
+                            $current_backend = isset($settings['storage_backend']) ? $settings['storage_backend'] : 'auto';
+                            $detected_backend = $exporter->detect_storage_backend();
+                            ?>
+
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input
+                                    type="radio"
+                                    name="cf7_monthly_export_settings[storage_backend]"
+                                    value="auto"
+                                    <?php checked($current_backend, 'auto'); ?>
+                                />
+                                <?php _e('Auto-detect (recommended)', 'cf7-monthly-export'); ?>
+                            </label>
+
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input
+                                    type="radio"
+                                    name="cf7_monthly_export_settings[storage_backend]"
+                                    value="flamingo"
+                                    <?php checked($current_backend, 'flamingo'); ?>
+                                />
+                                <?php _e('Flamingo', 'cf7-monthly-export'); ?>
+                            </label>
+
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input
+                                    type="radio"
+                                    name="cf7_monthly_export_settings[storage_backend]"
+                                    value="cfdb7"
+                                    <?php checked($current_backend, 'cfdb7'); ?>
+                                />
+                                <?php _e('Contact Form CFDB7', 'cf7-monthly-export'); ?>
+                            </label>
+
+                            <p class="description" style="margin-top: 15px;">
+                                <strong><?php _e('Currently detected:', 'cf7-monthly-export'); ?></strong>
+                                <?php
+                                if ($detected_backend === 'flamingo') {
+                                    echo '<span style="color: #00a32a;">✓ ' . __('Flamingo is active', 'cf7-monthly-export') . '</span>';
+                                } elseif ($detected_backend === 'cfdb7') {
+                                    echo '<span style="color: #00a32a;">✓ ' . __('Contact Form CFDB7 is active', 'cf7-monthly-export') . '</span>';
+                                } else {
+                                    echo '<span style="color: #d63638;">✗ ' . __('No storage backend detected', 'cf7-monthly-export') . '</span>';
+                                }
+                                ?>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
             <!-- Export Settings -->
             <div class="cf7-export-section">
                 <h2><?php _e('Export Settings', 'cf7-monthly-export'); ?></h2>

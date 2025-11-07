@@ -18,6 +18,7 @@ Thumbs.db
 google-credentials.json
 service-account.json
 *.pem
+*.key
 
 # Temporary files
 *.tmp
@@ -32,3 +33,9 @@ yarn.lock
 # Build files
 /dist/
 /build/
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

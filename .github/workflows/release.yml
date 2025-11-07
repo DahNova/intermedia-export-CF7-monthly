@@ -1,0 +1,94 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v1.0.0
+
+jobs:
+  build:
+    name: Build and Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools: composer:v2
+
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Create plugin directory structure
+        run: |
+          mkdir -p build/cf7-monthly-export
+          cp -r includes build/cf7-monthly-export/
+          cp -r admin build/cf7-monthly-export/
+          cp -r vendor build/cf7-monthly-export/
+          cp cf7-monthly-export.php build/cf7-monthly-export/
+          cp composer.json build/cf7-monthly-export/
+          cp README.md build/cf7-monthly-export/
+          cp .gitignore build/cf7-monthly-export/
+
+      - name: Clean vendor directory
+        run: |
+          rm -rf build/cf7-monthly-export/vendor/bin
+          find build/cf7-monthly-export/vendor -name "*.md" -not -name "README.md" -delete
+          find build/cf7-monthly-export/vendor -name ".git*" -delete
+          find build/cf7-monthly-export/vendor -name "composer.*" -delete
+          find build/cf7-monthly-export/vendor -type d -name "tests" -exec rm -rf {} + || true
+          find build/cf7-monthly-export/vendor -type d -name "test" -exec rm -rf {} + || true
+
+      - name: Create ZIP file
+        run: |
+          cd build
+          zip -r cf7-monthly-export-${{ steps.get_version.outputs.VERSION }}.zip cf7-monthly-export
+          cd ..
+          mv build/cf7-monthly-export-${{ steps.get_version.outputs.VERSION }}.zip .
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          body: |
+            ## CF7 Monthly Export to Google Sheets v${{ steps.get_version.outputs.VERSION }}
+
+            ### Installation
+            1. Download the `cf7-monthly-export-${{ steps.get_version.outputs.VERSION }}.zip` file below
+            2. Go to WordPress Admin → Plugins → Add New
+            3. Click "Upload Plugin"
+            4. Choose the downloaded ZIP file
+            5. Click "Install Now" and then "Activate"
+
+            ### What's New
+            See [README.md](https://github.com/${{ github.repository }}/blob/main/README.md) for full documentation.
+
+            ### Requirements
+            - WordPress 5.8+
+            - PHP 7.4+
+            - Contact Form 7
+            - Contact Form CFDB7
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./cf7-monthly-export-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: cf7-monthly-export-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_content_type: application/zip

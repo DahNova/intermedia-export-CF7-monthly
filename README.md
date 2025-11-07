@@ -24,23 +24,45 @@ Plugin WordPress per esportare automaticamente o manualmente i dati delle submis
 
 ## Installazione
 
-### 1. Clona o scarica il plugin
+### Metodo 1: Download dal Release (CONSIGLIATO)
 
-```bash
-cd wp-content/plugins/
-git clone https://github.com/DahNova/intermedia-export-CF7-monthly.git cf7-monthly-export
-cd cf7-monthly-export
-```
+Questo è il metodo più semplice e veloce, non richiede Composer.
 
-### 2. Installa le dipendenze
+1. **Scarica il plugin**:
+   - Vai alla pagina [Releases](https://github.com/DahNova/intermedia-export-CF7-monthly/releases)
+   - Scarica l'ultimo file `cf7-monthly-export-X.X.X.zip`
 
-```bash
-composer install
-```
+2. **Installa in WordPress**:
+   - Vai su **WordPress Admin → Plugin → Aggiungi Nuovo**
+   - Clicca su **Carica Plugin**
+   - Seleziona il file ZIP scaricato
+   - Clicca su **Installa Ora**
+   - Clicca su **Attiva Plugin**
 
-### 3. Attiva il plugin
+3. **Configura il plugin**:
+   - Vai su **Impostazioni → CF7 Export**
+   - Segui la guida di configurazione sotto
 
-Vai su **WordPress Admin → Plugin** e attiva "CF7 Monthly Export to Google Sheets"
+### Metodo 2: Installazione da Codice Sorgente (Per Sviluppatori)
+
+Questo metodo richiede Composer e Git.
+
+1. **Clona il repository**:
+   ```bash
+   cd wp-content/plugins/
+   git clone https://github.com/DahNova/intermedia-export-CF7-monthly.git cf7-monthly-export
+   cd cf7-monthly-export
+   ```
+
+2. **Installa le dipendenze**:
+   ```bash
+   composer install
+   ```
+
+3. **Attiva il plugin**:
+   - Vai su **WordPress Admin → Plugin**
+   - Trova "CF7 Monthly Export to Google Sheets"
+   - Clicca su **Attiva**
 
 ## Configurazione
 
@@ -289,6 +311,28 @@ Sviluppato da [DahNova](https://github.com/DahNova)
 - Contact Form 7 - GPL v2
 - Contact Form CFDB7 - GPL v2
 
+## Per Sviluppatori
+
+### Creare un Release
+
+Se vuoi creare un nuovo release del plugin:
+
+**Metodo Automatico (GitHub Actions)**:
+1. Aggiorna la versione in `cf7-monthly-export.php`
+2. Committa: `git commit -am "Bump version to X.X.X"`
+3. Crea tag: `git tag vX.X.X`
+4. Pusha: `git push && git push --tags`
+5. GitHub Actions creerà automaticamente il release con il file ZIP
+
+**Metodo Manuale**:
+```bash
+./build.sh
+```
+
+Il file ZIP pronto per l'installazione sarà in `dist/cf7-monthly-export-X.X.X.zip`
+
+Per maggiori dettagli vedi [RELEASE.md](RELEASE.md)
+
 ## Contribuire
 
 I contributi sono benvenuti! Per contribuire:
@@ -298,6 +342,19 @@ I contributi sono benvenuti! Per contribuire:
 3. Committa i tuoi cambiamenti (`git commit -m 'Add some AmazingFeature'`)
 4. Pusha sul branch (`git push origin feature/AmazingFeature`)
 5. Apri una Pull Request
+
+### Setup Ambiente di Sviluppo
+
+```bash
+# Clona il repository
+git clone https://github.com/DahNova/intermedia-export-CF7-monthly.git
+cd intermedia-export-CF7-monthly
+
+# Installa dipendenze
+composer install
+
+# Il plugin è pronto per essere testato in WordPress
+```
 
 ---
 

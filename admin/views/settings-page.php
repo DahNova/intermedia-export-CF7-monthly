@@ -191,11 +191,50 @@ if (!defined('ABSPATH')) {
                                     value="1"
                                     <?php checked(isset($settings['auto_export_enabled']) ? $settings['auto_export_enabled'] : false); ?>
                                 />
-                                <?php _e('Enable automatic monthly export', 'cf7-monthly-export'); ?>
+                                <?php _e('Enable automatic scheduled export', 'cf7-monthly-export'); ?>
                             </label>
                             <p class="description">
-                                <?php _e('When enabled, exports will run automatically on the first day of each month at 2:00 AM.', 'cf7-monthly-export'); ?>
+                                <?php _e('When enabled, exports will run automatically based on the schedule below.', 'cf7-monthly-export'); ?>
                             </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row"><?php _e('Schedule Frequency', 'cf7-monthly-export'); ?></th>
+                        <td>
+                            <select name="cf7_monthly_export_settings[schedule_frequency]">
+                                <option value="daily" <?php selected(isset($settings['schedule_frequency']) ? $settings['schedule_frequency'] : 'monthly', 'daily'); ?>>
+                                    <?php _e('Daily (every day at 2:00 AM)', 'cf7-monthly-export'); ?>
+                                </option>
+                                <option value="weekly" <?php selected(isset($settings['schedule_frequency']) ? $settings['schedule_frequency'] : 'monthly', 'weekly'); ?>>
+                                    <?php _e('Weekly (every Monday at 2:00 AM)', 'cf7-monthly-export'); ?>
+                                </option>
+                                <option value="monthly" <?php selected(isset($settings['schedule_frequency']) ? $settings['schedule_frequency'] : 'monthly', 'monthly'); ?>>
+                                    <?php _e('Monthly (first day of month at 2:00 AM)', 'cf7-monthly-export'); ?>
+                                </option>
+                            </select>
+                            <p class="description">
+                                <?php
+                                if ($next_schedule) {
+                                    printf(__('Next scheduled export: <strong>%s</strong>', 'cf7-monthly-export'), esc_html($next_schedule));
+                                } else {
+                                    _e('No export scheduled. Enable automatic export above and save settings.', 'cf7-monthly-export');
+                                }
+                                ?>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th scope="row"><?php _e('Test Cron', 'cf7-monthly-export'); ?></th>
+                        <td>
+                            <button type="button" class="button button-secondary" id="cf7-test-cron">
+                                <?php _e('Run Cron Now (Test)', 'cf7-monthly-export'); ?>
+                            </button>
+                            <p class="description">
+                                <?php _e('Manually trigger the scheduled export to test if everything works correctly.', 'cf7-monthly-export'); ?>
+                            </p>
+                            <div id="cf7-cron-result" style="margin-top: 10px;"></div>
                         </td>
                     </tr>
 

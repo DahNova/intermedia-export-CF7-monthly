@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(composer install:*)",
+      "Bash(bash:*)",
+      "Bash(tar:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(python3 -m zipfile:*)",
+      "Bash(7z l:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

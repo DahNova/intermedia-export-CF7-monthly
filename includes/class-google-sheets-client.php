@@ -154,12 +154,12 @@ class CF7_Monthly_Export_Google_Sheets_Client {
     /**
      * Get all existing data from sheet
      *
-     * @param string $range Range to read (e.g., 'A:Z')
+     * @param string $range Range to read (e.g., 'A:ZZ')
      * @return array Existing data
      */
     public function get_existing_data($range = null) {
         if ($range === null) {
-            $range = $this->sheet_name . '!A:Z';
+            $range = $this->sheet_name . '!A:ZZ';
         } else {
             $range = $this->sheet_name . '!' . $range;
         }
@@ -172,6 +172,38 @@ class CF7_Monthly_Export_Google_Sheets_Client {
 
         } catch (Exception $e) {
             error_log('CF7 Monthly Export - Error reading existing data: ' . $e->getMessage());
+            return array();
+        }
+    }
+
+    /**
+     * Get existing submission IDs from column A
+     *
+     * @return array Array of submission IDs already in the sheet
+     */
+    public function get_existing_submission_ids() {
+        try {
+            // Read only column A (submission IDs)
+            $range = $this->sheet_name . '!A:A';
+            $response = $this->service->spreadsheets_values->get($this->spreadsheet_id, $range);
+            $values = $response->getValues();
+
+            if (empty($values)) {
+                return array();
+            }
+
+            $submission_ids = array();
+            // Skip header row (index 0) and collect all submission IDs
+            for ($i = 1; $i < count($values); $i++) {
+                if (isset($values[$i][0]) && !empty($values[$i][0])) {
+                    $submission_ids[] = $values[$i][0];
+                }
+            }
+
+            return $submission_ids;
+
+        } catch (Exception $e) {
+            error_log('CF7 Monthly Export - Error reading submission IDs: ' . $e->getMessage());
             return array();
         }
     }
@@ -210,13 +242,15 @@ class CF7_Monthly_Export_Google_Sheets_Client {
                 return true; // Nothing to append
             }
 
-            $range = $this->sheet_name . '!A:Z';
+            // Use A1 as starting point to ensure data starts from column A
+            $range = $this->sheet_name . '!A1';
             $body = new Google_Service_Sheets_ValueRange([
                 'values' => $values_to_append
             ]);
 
             $params = [
-                'valueInputOption' => 'RAW'
+                'valueInputOption' => 'RAW',
+                'insertDataOption' => 'INSERT_ROWS'
             ];
 
             $this->service->spreadsheets_values->append(
@@ -241,7 +275,7 @@ class CF7_Monthly_Export_Google_Sheets_Client {
      */
     public function clear_sheet() {
         try {
-            $range = $this->sheet_name . '!A:Z';
+            $range = $this->sheet_name . '!A:ZZ';
             $clear = new Google_Service_Sheets_ClearValuesRequest();
 
             $this->service->spreadsheets_values->clear(

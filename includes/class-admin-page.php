@@ -24,6 +24,7 @@ class CF7_Monthly_Export_Admin_Page {
         add_action('wp_ajax_cf7_test_connection', array($this, 'ajax_test_connection'));
         add_action('wp_ajax_cf7_manual_export', array($this, 'ajax_manual_export'));
         add_action('wp_ajax_cf7_get_stats', array($this, 'ajax_get_stats'));
+        add_action('wp_ajax_cf7_test_cron', array($this, 'ajax_test_cron'));
     }
 
     /**
@@ -91,6 +92,13 @@ class CF7_Monthly_Export_Admin_Page {
         // Auto export enabled
         $sanitized['auto_export_enabled'] = isset($input['auto_export_enabled']) ? true : false;
 
+        // Schedule frequency
+        if (isset($input['schedule_frequency']) && in_array($input['schedule_frequency'], array('daily', 'weekly', 'monthly'))) {
+            $sanitized['schedule_frequency'] = $input['schedule_frequency'];
+        } else {
+            $sanitized['schedule_frequency'] = 'monthly';
+        }
+
         // Send notifications
         $sanitized['send_notifications'] = isset($input['send_notifications']) ? true : false;
 
@@ -106,6 +114,12 @@ class CF7_Monthly_Export_Admin_Page {
         $current_settings = get_option('cf7_monthly_export_settings', array());
         $sanitized['exported_entries'] = isset($current_settings['exported_entries']) ? $current_settings['exported_entries'] : array();
         $sanitized['last_export_date'] = isset($current_settings['last_export_date']) ? $current_settings['last_export_date'] : '';
+
+        // Reschedule cron if frequency changed or auto export enabled changed
+        if ($sanitized['auto_export_enabled']) {
+            $cron_handler = new CF7_Monthly_Export_Cron_Handler();
+            $cron_handler->reschedule_export($sanitized['schedule_frequency']);
+        }
 
         return $sanitized;
     }
@@ -216,5 +230,24 @@ class CF7_Monthly_Export_Admin_Page {
         $stats = $exporter->get_export_stats();
 
         wp_send_json_success($stats);
+    }
+
+    /**
+     * AJAX: Test cron execution
+     */
+    public function ajax_test_cron() {
+        check_ajax_referer('cf7_export_nonce', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Permission denied.'));
+        }
+
+        // Run the cron job manually
+        $cron_handler = new CF7_Monthly_Export_Cron_Handler();
+        $cron_handler->run_scheduled_export();
+
+        wp_send_json_success(array(
+            'message' => 'Cron job executed successfully. Check the results above or your email.'
+        ));
     }
 }

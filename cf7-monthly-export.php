@@ -3,8 +3,8 @@
  * Plugin Name: CF7 Monthly Export to Google Sheets
  * Plugin URI: https://github.com/DahNova/intermedia-export-CF7-monthly
  * Description: Export Contact Form 7 submissions to Google Sheets monthly or on-demand
- * Version: 1.0.0
- * Author: DahNova
+ * Version: 1.0.4
+ * Author: Claudio Novaglio
  * Author URI: https://github.com/DahNova
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('CF7_MONTHLY_EXPORT_VERSION', '1.0.0');
+define('CF7_MONTHLY_EXPORT_VERSION', '1.0.4');
 define('CF7_MONTHLY_EXPORT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('CF7_MONTHLY_EXPORT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('CF7_MONTHLY_EXPORT_PLUGIN_FILE', __FILE__);

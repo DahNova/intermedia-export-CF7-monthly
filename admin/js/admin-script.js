@@ -106,6 +106,52 @@
         });
 
         /**
+         * Test Cron
+         */
+        var $testCronButton = $('#cf7-test-cron');
+        var $cronResultDiv = $('#cf7-cron-result');
+
+        $testCronButton.on('click', function(e) {
+            e.preventDefault();
+
+            if (!confirm('Are you sure you want to test the cron job? This will trigger a real export if there are pending submissions.')) {
+                return;
+            }
+
+            var $button = $(this);
+            var originalText = $button.text();
+            $button.text('Running...').prop('disabled', true);
+            $cronResultDiv.html('');
+
+            $.ajax({
+                url: cf7ExportAjax.ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'cf7_test_cron',
+                    nonce: cf7ExportAjax.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $cronResultDiv.html('<div class="notice notice-success inline"><p>' + response.data.message + '</p></div>');
+
+                        // Reload stats after successful cron test
+                        setTimeout(function() {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        $cronResultDiv.html('<div class="notice notice-error inline"><p>' + response.data.message + '</p></div>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    $cronResultDiv.html('<div class="notice notice-error inline"><p>Error: ' + error + '</p></div>');
+                },
+                complete: function() {
+                    $button.text(originalText).prop('disabled', false);
+                }
+            });
+        });
+
+        /**
          * Auto-save indicator for form changes
          */
         var $form = $('.cf7-export-form');

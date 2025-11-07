@@ -283,6 +283,26 @@ cf7-monthly-export/
 
 ## Changelog
 
+### Version 1.0.4 (2025-11-07)
+- 🔧 Fix: Supporto esteso fino a 702 colonne (A:ZZ)
+- 🔧 Fix: Correzione inserimento dati dalla colonna A
+- ⚡ Migliorato: Parametro insertDataOption per append affidabile
+
+### Version 1.0.3 (2025-11-07)
+- 🔧 Fix: Correzione range per append dalla colonna A corretta
+- 🔧 Fix: Aggiunto parametro INSERT_ROWS
+
+### Version 1.0.2 (2025-11-07)
+- ✨ Nuova funzionalità: Schedule flessibile (Daily/Weekly/Monthly)
+- ✨ Nuova funzionalità: Pulsante "Test Cron Now" per testare l'export automatico
+- ⚡ Migliorato: Auto-reschedule quando si cambia frequenza
+
+### Version 1.0.1 (2025-11-07)
+- 🔧 Fix: Deduplicazione basata su Google Sheets (source of truth)
+- 🔧 Fix: Statistiche accurate leggendo da Google Sheets
+- 🔧 Fix: Mark as exported anche per full export
+- ⚡ Migliorato: Fallback al DB locale se Sheets non raggiungibile
+
 ### Version 1.0.0 (2025-11-07)
 - ✨ Release iniziale
 - ✅ Export automatico mensile
@@ -304,7 +324,7 @@ GPL v2 or later
 
 ## Crediti
 
-Sviluppato da [DahNova](https://github.com/DahNova)
+Sviluppato da [Claudio Novaglio](https://github.com/DahNova)
 
 ### Librerie utilizzate:
 - [Google API PHP Client](https://github.com/googleapis/google-api-php-client) - Apache License 2.0

@@ -175,20 +175,38 @@ class CF7_Monthly_Export_Exporter {
 
     /**
      * Filter out already exported entries
+     * Checks Google Sheets directly to see which submission IDs are already present
      *
      * @param array $submissions Normalized submissions
      * @return array Filtered submissions (only new ones)
      */
     public function filter_new_submissions($submissions) {
-        $exported_ids = isset($this->settings['exported_entries']) ? $this->settings['exported_entries'] : array();
+        // Try to get existing IDs from Google Sheets (source of truth)
+        $exported_ids_from_sheets = array();
 
-        if (empty($exported_ids)) {
+        try {
+            // Initialize client if not already done
+            if ($this->sheets_client->init_client()) {
+                $exported_ids_from_sheets = $this->sheets_client->get_existing_submission_ids();
+            }
+        } catch (Exception $e) {
+            error_log('CF7 Monthly Export - Error reading from Google Sheets, using local DB as fallback: ' . $e->getMessage());
+        }
+
+        // Fallback to local database if Google Sheets is not accessible
+        if (empty($exported_ids_from_sheets)) {
+            $exported_ids_from_sheets = isset($this->settings['exported_entries']) ? $this->settings['exported_entries'] : array();
+        }
+
+        // If no exported IDs at all, return all submissions
+        if (empty($exported_ids_from_sheets)) {
             return $submissions;
         }
 
+        // Filter out submissions that are already in Google Sheets
         $new_submissions = array();
         foreach ($submissions as $submission) {
-            if (!in_array($submission['submission_id'], $exported_ids)) {
+            if (!in_array($submission['submission_id'], $exported_ids_from_sheets)) {
                 $new_submissions[] = $submission;
             }
         }
@@ -270,9 +288,7 @@ class CF7_Monthly_Export_Exporter {
             }
 
             // Mark submissions as exported
-            if (!$force_all) {
-                $this->mark_as_exported($normalized);
-            }
+            $this->mark_as_exported($normalized);
 
             // Update last export date
             $this->settings['last_export_date'] = current_time('mysql');
@@ -299,11 +315,23 @@ class CF7_Monthly_Export_Exporter {
      * @return array Statistics about exports
      */
     public function get_export_stats() {
+        // Try to get real count from Google Sheets
+        $exported_count = 0;
+        try {
+            if ($this->sheets_client->init_client()) {
+                $exported_ids = $this->sheets_client->get_existing_submission_ids();
+                $exported_count = count($exported_ids);
+            }
+        } catch (Exception $e) {
+            // Fallback to local database count on error
+            $exported_count = count(isset($this->settings['exported_entries']) ? $this->settings['exported_entries'] : array());
+        }
+
         $stats = array(
             'total_forms' => count($this->get_all_cf7_forms()),
             'forms_to_export' => count(isset($this->settings['forms_to_export']) ? $this->settings['forms_to_export'] : array()),
             'total_submissions' => 0,
-            'exported_count' => count(isset($this->settings['exported_entries']) ? $this->settings['exported_entries'] : array()),
+            'exported_count' => $exported_count,
             'pending_count' => 0,
             'last_export_date' => isset($this->settings['last_export_date']) ? $this->settings['last_export_date'] : 'Never'
         );
@@ -312,7 +340,7 @@ class CF7_Monthly_Export_Exporter {
         $submissions = $this->get_submissions();
         $stats['total_submissions'] = count($submissions);
 
-        // Calculate pending
+        // Calculate pending (filter_new_submissions now checks Google Sheets)
         $normalized = $this->normalize_submissions($submissions);
         $new_submissions = $this->filter_new_submissions($normalized);
         $stats['pending_count'] = count($new_submissions);
